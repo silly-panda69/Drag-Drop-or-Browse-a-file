@@ -1,5 +1,7 @@
 import React,{useState,useRef, useContext} from "react";
 import { FileContext } from "../context/FIleContext";
+import Toast from "./Toast";
+import * as bootstrap from 'bootstrap';
 
 const Browse = () => {
     const {dispatch}=useContext(FileContext);
@@ -8,6 +10,11 @@ const Browse = () => {
     const closeModalBtn = useRef(null);
     const fileInputBtn = useRef(null);
     const modalRef=useRef(null);
+    const toastRef=useRef(null);
+    const openToast=()=>{
+        const toastBs=bootstrap.Toast.getOrCreateInstance(toastRef.current);
+        toastBs.show();
+    }
     const handleModalClose = () => {
         closeModalBtn.current.click();
     }
@@ -35,14 +42,21 @@ const Browse = () => {
     const handleFiles = (files) => {
         var tempFile = new DataTransfer();
         var filearray=[];
+        let count=0;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const ftype = file.type.split("/").pop();
             if (ftype === "png" || ftype === "jpg" || ftype === "jpeg") {
                 tempFile.items.add(file);
                 filearray.push(file);
+            }else{
+                if(count===0){
+                    openToast();
+                    count=1;
+                }
             }
         }
+        count=0;
         if (fileList !== undefined) {
             for (let i = 0; i < fileList.length; i++) {
                 const file = fileList[i];
@@ -60,6 +74,7 @@ const Browse = () => {
     };
     return (
         <div>
+            <Toast toastRef={toastRef}></Toast>
             <button
                     className="btn btn-outline"
                     type="button"
@@ -117,11 +132,6 @@ const Browse = () => {
                                     ></input>
                                 </div>
                             </div>
-                            {/* <div className="mt-2 d-flex justify-content-end">
-                                <button className="btn btn-dark btn-sm">Upload Files</button>
-                                <span className="px-2"></span>
-                                <button className="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
-                            </div> */}
                         </div>
                     </div>
                 </div>
